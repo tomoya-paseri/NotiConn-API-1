@@ -9,15 +9,25 @@ plugins:
   - serverless-webpack
   - serverless-offline
 
+
 provider:
   name: aws
   runtime: nodejs10.x
-  region: us-west-2
-  profile: ${opt:profile, self:custom.defaultProfile}
+  stage: dev
+  region: ap-northeast-1
+  profile: noticonn
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource: "arn:aws:s3:::noticonn/*" # add
 
 functions:
   hello:
     handler: src/handler.hello
+    package:
+      include:
+        - src/**
     events:
       - http:
           method: get
