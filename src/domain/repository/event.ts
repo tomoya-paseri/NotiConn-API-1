@@ -1,4 +1,4 @@
-import { ReturnType } from "./domain";
+import { ReturnType } from "../domain";
 
 export function NewRepository(): ReturnType {
     const newReturnType: ReturnType = {
@@ -6,4 +6,8 @@ export function NewRepository(): ReturnType {
         body: JSON.stringify({message: "hello"})
     };
     return newReturnType
+}
+
+export abstract class IEventRepository {
+    abstract async getAll(): Promise<string>
 }

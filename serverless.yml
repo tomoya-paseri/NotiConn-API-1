@@ -23,12 +23,12 @@ provider:
       Resource: "arn:aws:s3:::noticonn/*" # add
 
 functions:
-  hello:
-    handler: src/handler.hello
+  getAllEvents:
+    handler: src/handler.getAllEvents
     package:
       include:
         - src/**
     events:
       - http:
           method: get
-          path: hello
+          path: event/get
