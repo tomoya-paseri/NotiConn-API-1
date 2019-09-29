@@ -24,11 +24,21 @@ provider:
 
 functions:
   getAllEvents:
-    handler: src/handler.getAllEvents
+    handler: src/handler/event.getAllEvents
     package:
       include:
         - src/**
     events:
       - http:
           method: get
-          path: event/get
+          path: allEvents
+
+  getEvents:
+    handler: src/handler/event.getEvents
+    package:
+      include:
+        - src/**
+    events:
+      - http:
+          method: get
+          path: events

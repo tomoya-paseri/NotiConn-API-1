@@ -9,8 +9,8 @@ aws.config.update({
 const s3 = new aws.S3();
 
 import 'source-map-support/register';
-import { EventRepository } from './infra/event';
-import { EventUsecase } from './usecase/event';
+import { EventRepository } from '../infra/event';
+import { EventUsecase } from '../usecase/event';
 
 export const getAllEvents: APIGatewayProxyHandler = async (event, _context) => {
   // const req = event.multiValueQueryStringParameters
