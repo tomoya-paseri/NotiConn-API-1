@@ -32,7 +32,6 @@ functions:
       - http:
           method: get
           path: allEvents
-
   getEvents:
     handler: src/handler/event.getEvents
     package:
@@ -42,3 +41,12 @@ functions:
       - http:
           method: get
           path: events
+  save:
+    handler: src/handler/event.save
+    package:
+      include:
+        - src/**
+    events:
+      - http:
+          method: get
+          path: save
