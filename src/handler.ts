@@ -23,6 +23,18 @@ export const getAllEvents: APIGatewayProxyHandler = async (event, _context) => {
   };
 }
 
+const paramsToGet = {
+  Bucket: 'noticonn',
+  Key: 'sample.json'
+};
+
+const paramsToPut = {
+  Bucket: 'noticonn',
+  Key: 'samplePut.json',
+  Body: '',
+};
+
+
 export const getEvents: APIGatewayProxyHandler = async (event, _context) => {
   // const req = event.multiValueQueryStringParameters
   const eventRepo = new EventRepository(s3)
@@ -32,4 +44,21 @@ export const getEvents: APIGatewayProxyHandler = async (event, _context) => {
     statusCode: 200,
     body: JSON.stringify({message: events})
   };
+}
+
+export const save = async () => {
+  const jsonData = {
+    'title': 'テストだよ~~~~~~',
+    'body': 'テストだよ!!!!!!',
+  };
+  paramsToPut['Body'] = JSON.stringify(jsonData);
+  const date = new Date();
+  await s3.putObject(paramsToPut, (err, data) => {
+    if (err) {
+      console.log(err);
+      console.log(data);
+    } else {
+      console.log("Successfully uploaded data : " + date.toLocaleDateString());
+    }
+  });
 }
