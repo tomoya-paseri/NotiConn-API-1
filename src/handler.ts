@@ -17,6 +17,12 @@ const paramsToGet = {
   Key: 'sample.json'
 };
 
+const paramsToPut = {
+  Bucket: 'noticonn',
+  Key: 'samplePut.json',
+  Body: '',
+};
+
 export const hello: APIGatewayProxyHandler = async (_, _context) => {
   const retObj = NewRepository();
   console.log(await s3.getObject(paramsToGet).promise())
@@ -24,4 +30,21 @@ export const hello: APIGatewayProxyHandler = async (_, _context) => {
   retObj.body = data.Body.toString();
   return retObj;
   // return callback(null, retObj);
+}
+
+export const save = async () => {
+  const jsonData = {
+    'title': 'テストだよ~~~~~~',
+    'body': 'テストだよ!!!!!!',
+  };
+  paramsToPut['Body'] = JSON.stringify(jsonData);
+  const date = new Date();
+  await s3.putObject(paramsToPut, (err, data) => {
+    if (err) {
+      console.log(err);
+      console.log(data);
+    } else {
+      console.log("Successfully uploaded data : " + date.toLocaleDateString());
+    }
+  });
 }
