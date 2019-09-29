@@ -10,4 +10,5 @@ export function NewRepository(): ReturnType {
 
 export abstract class IEventRepository {
     abstract async getAll(): Promise<string>
+    abstract async save()
 }

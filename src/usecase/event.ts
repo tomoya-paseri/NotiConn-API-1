@@ -4,6 +4,7 @@ import { parseToOutput } from "./output/event";
 
 abstract class IEventUsecase {
     abstract async getAllEvents(): Promise<Event[]>
+    abstract async saveEvents()
 }
 
 export class EventUsecase extends IEventUsecase {
@@ -15,5 +16,8 @@ export class EventUsecase extends IEventUsecase {
     async getAllEvents(): Promise<Event[]> {
         const events = await this.repo.getAll()
         return parseToOutput(events)
+    }
+    async saveEvents() {
+        await this.repo.save()
     }
 }
