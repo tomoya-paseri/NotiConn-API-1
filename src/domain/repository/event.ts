@@ -1,3 +1,3 @@
 export abstract class IEventRepository {
-    abstract async getAll(): Promise<string>
+    abstract async get(req: RegExp): Promise<string>
 }

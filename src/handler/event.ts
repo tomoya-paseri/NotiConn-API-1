@@ -23,7 +23,7 @@ export const getEvents: APIGatewayProxyHandler = async (event, _context) => {
   console.log(req)  // event変数使用するため一旦出力
   const eventRepo = new EventRepository(s3)
   const eventUsecase = new EventUsecase(eventRepo)
-  const events = await eventUsecase.getAllEvents()
+  const events = await eventUsecase.getEvents(req)
   return {
     statusCode: 200,
     headers: {
