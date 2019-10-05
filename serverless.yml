@@ -9,12 +9,18 @@ plugins:
   - serverless-webpack
   - serverless-offline
 
+custom:
+  defaultStage: dev
+  profiles:
+    dev: noticonn-dev
+    prd: noticonn
+
 provider:
   name: aws
   runtime: nodejs10.x
-  stage: prd
   region: ap-northeast-1
-  profile: noticonn
+  stage: ${opt:stage, self:custom.defaultStage}
+  profile: ${self:custom.profiles.${self:provider.stage}}
   iamRoleStatements:
     - Effect: Allow
       Action:
