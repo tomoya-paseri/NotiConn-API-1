@@ -1,0 +1,6 @@
+handler: src/handler/event.getEvents
+package:
+  include:
+    - src/**
+events:
+  - schedule: cron(0/10 * * * ? *)

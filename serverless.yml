@@ -17,6 +17,10 @@ custom:
   env:
     dev: ${file(./serverless/env/dev.yml)}
     prd: ${file(./serverless/env/prd.yml)}
+  functions:
+    save:
+      dev: ${file(./serverless/functions/save/dev.yml)}
+      prd: ${file(./serverless/functions/save/prd.yml)}
 
 provider:
   name: aws
@@ -45,9 +49,4 @@ functions:
           method: get
           path: events
   save:
-    handler: src/handler/event.save
-    package:
-      include:
-        - src/**
-    events:
-      - schedule: cron(0/10 * * * ? *)
+    ${self:custom.functions.save.${self:provider.stage}}
