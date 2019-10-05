@@ -14,6 +14,13 @@ custom:
   profiles:
     dev: noticonn-dev
     prd: noticonn
+  env:
+    dev: ${file(./serverless/env/dev.yml)}
+    prd: ${file(./serverless/env/prd.yml)}
+  functions:
+    save:
+      dev: ${file(./serverless/functions/save/dev.yml)}
+      prd: ${file(./serverless/functions/save/prd.yml)}
 
 provider:
   name: aws
@@ -21,11 +28,15 @@ provider:
   region: ap-northeast-1
   stage: ${opt:stage, self:custom.defaultStage}
   profile: ${self:custom.profiles.${self:provider.stage}}
+  environment:
+    BUCKET: ${self:custom.env.${self:provider.stage}.BUCKET}
+    EVENT_FILE: ${self:custom.env.${self:provider.stage}.EVENT_FILE}
+    SINCE_ID_FILE: ${self:custom.env.${self:provider.stage}.SINCE_ID_FILE}
   iamRoleStatements:
     - Effect: Allow
       Action:
         - s3:*
-      Resource: "arn:aws:s3:::noticonn/*" # add
+      Resource: "arn:aws:s3:::${self:custom.env.${self:provider.stage}.BUCKET}/*" # add
 
 functions:
   getEvents:
@@ -38,9 +49,4 @@ functions:
           method: get
           path: events
   save:
-    handler: src/handler/event.save
-    package:
-      include:
-        - src/**
-    events:
-      - schedule: cron(0/10 * * * ? *)
+    ${self:custom.functions.save.${self:provider.stage}}

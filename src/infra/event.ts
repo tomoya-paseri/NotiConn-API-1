@@ -4,25 +4,25 @@ import * as aws from 'aws-sdk';
 import { resolve, reject } from "bluebird";
 
 const paramsToGet = {
-    Bucket: 'noticonn',
-    Key: 'sample.json'
+    Bucket: process.env.BUCKET,
+    Key: process.env.EVENT_FILE,
 };
 
 const paramsToPut = {
-    Bucket: 'noticonn',
-    Key: 'sample.json',
+    Bucket: process.env.BUCKET,
+    Key: process.env.EVENT_FILE,
     Body: '',
 };
 
 const paramsToPutSinceId = {
-    Bucket: 'noticonn',
-    Key: 'sampleSinceId.json',
+    Bucket: process.env.BUCKET,
+    Key: process.env.SINCE_ID_FILE,
     Body: '',
 };
 
 const paramsToGetSinceId = {
-    Bucket: 'noticonn',
-    Key: 'sampleSinceId.json',
+    Bucket: process.env.BUCKET,
+    Key: process.env.SINCE_ID_FILE,
 };
 
 export class EventRepository extends IEventRepository{

@@ -1,0 +1,3 @@
+BUCKET: noticonn
+EVENT_FILE: events.json
+SINCE_ID_FILe: sinceId.json
