@@ -2,9 +2,13 @@
 offline:
 	yarn sls offline start
 
-.PHONY: deploy
-deploy:
+.PHONY: deploy-dev
+deploy-dev:
 	yarn sls deploy --aws-profile noticonn
+
+.PHONY: deploy-prd
+deploy-prd:
+	yarn sls deploy --aws-profile noticonn --stage=prd
 
 .PHONY: remove
 remove:
