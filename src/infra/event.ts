@@ -53,13 +53,15 @@ export class EventRepository extends IEventRepository{
             for (const i in events) {
                 if (events[i]['event_id'] > sinceId) {
                     const description: string = events[i]['description'];
-                    events[i]['description'] = description.replace(/(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)/g, "");
+                    events[i]['description'] = description
+                        .replace(/(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)/g, "")
+                        .replace(/^ [a - zA - Z0 - 9.!#$ %& '*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/g, '');
                     updateEvents.push(events[i]);
                     if (events[i]['event_id'] > updateSinceId) updateSinceId = events[i]['event_id'];
                 }
             }
             const updateData = {};
-            updateData['events'] = updateEvents
+            updateData['events'] = updateEvents;
             paramsToPut['Body'] = JSON.stringify(updateData);
             await this.s3.putObject(paramsToPut, async (err, data) => {
                 if (err) {
@@ -68,7 +70,7 @@ export class EventRepository extends IEventRepository{
                     const date = new Date();
                     const options = {
                        year: "numeric",
-                       month: "numric",
+                       month: "numeric",
                        day: "numeric",
                        hour: "numeric",
                        minute: "numeric",
