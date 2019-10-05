@@ -42,9 +42,12 @@ export class EventRepository extends IEventRepository{
         super()
         this.s3 = s3;
     }
-    async getAll(): Promise<string> {
+    async get(req: RegExp): Promise<string> {
         const data = await this.s3.getObject(paramsToGet).promise()
-        return data.Body.toString()
+        const formattedData = ignoreUnexpectedCharacters(data.Body.toString())
+        const events = JSON.parse(formattedData).events
+        const filteredEvents = events.filter(event => event.description.match( req ) != null );
+        return JSON.stringify(filteredEvents)
     }
 
     async save() {

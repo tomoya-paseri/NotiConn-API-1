@@ -23,15 +23,6 @@ provider:
       Resource: "arn:aws:s3:::noticonn/*" # add
 
 functions:
-  getAllEvents:
-    handler: src/handler/event.getAllEvents
-    package:
-      include:
-        - src/**
-    events:
-      - http:
-          method: get
-          path: allEvents
   getEvents:
     handler: src/handler/event.getEvents
     package:
