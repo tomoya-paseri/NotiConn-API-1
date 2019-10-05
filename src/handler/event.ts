@@ -34,18 +34,7 @@ export const getEvents: APIGatewayProxyHandler = async (event, _context) => {
 }
 
 export const save = async () => {
-  const jsonData = {
-    'title': 'テストだよ~~~~~~',
-    'body': 'テストだよ!!!!!!',
-  };
-  paramsToPut['Body'] = JSON.stringify(jsonData);
-  const date = new Date();
-  await s3.putObject(paramsToPut, (err, data) => {
-    if (err) {
-      console.log(err);
-      console.log(data);
-    } else {
-      console.log("Successfully uploaded data : " + date.toLocaleDateString());
-    }
-  });
+  const eventRepo = new EventRepository(s3)
+  const eventUsecase = new EventUsecase(eventRepo)
+  await eventUsecase.saveEvents()
 }

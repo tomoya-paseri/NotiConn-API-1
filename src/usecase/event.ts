@@ -5,6 +5,7 @@ import { parseToInput } from "./input/event";
 
 abstract class IEventUsecase {
     abstract async getEvents(req: any): Promise<Event[]>
+    abstract async saveEvents()
 }
 
 export class EventUsecase extends IEventUsecase {
@@ -17,5 +18,8 @@ export class EventUsecase extends IEventUsecase {
         const inputData: RegExp = parseToInput(req)
         const events = await this.repo.get(inputData)
         return parseToOutput(events)
+    }
+    async saveEvents() {
+        await this.repo.save()
     }
 }
