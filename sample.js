@@ -18,6 +18,4 @@ msg = msg.replace(/[\u0000-\u0019]+/g,"");
 const filteredEvents = JSON.parse(msg).events
     .filter(description => { return description.description.indexOf( 'aws' ) > 0 });
 
-console.log(filteredEvents);
-
     // .map(event => { return {"description": event.description, "url": event.event_url } })

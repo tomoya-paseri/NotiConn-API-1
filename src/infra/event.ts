@@ -44,7 +44,7 @@ export class EventRepository extends IEventRepository{
     }
     async get(req: RegExp): Promise<string> {
         const data = await this.s3.getObject(paramsToGet).promise()
-        const formattedData = ignoreUnexpectedCharacters(data.Body.toString())
+        const formattedData = this.ignoreUnexpectedCharacters(data.Body.toString())
         const events = JSON.parse(formattedData).events
         const filteredEvents = events.filter(event => event.description.match( req ) != null );
         return JSON.stringify(filteredEvents)
@@ -54,8 +54,8 @@ export class EventRepository extends IEventRepository{
         await this.getConnpassEvent().then(async events => {
             const sinceIdData = await this.s3.getObject(paramsToGetSinceId).promise();
             const sinceIdArray = JSON.parse(sinceIdData.Body.toString());
-            let sinceId = sinceIdArray.sinceId;
-            let updateSinceId = sinceIdArray.sinceId;
+            const sinceId = sinceIdArray.sinceId || 0;
+            let updateSinceId = sinceId;
             const updateEvents = [];
             for (const i in events) {
                 if (events[i]['event_id'] > sinceId) {
@@ -65,24 +65,29 @@ export class EventRepository extends IEventRepository{
                     if (events[i]['event_id'] > updateSinceId) updateSinceId = events[i]['event_id'];
                 }
             }
-            const nowDataJSON = await this.getAll();
-            const nowData = JSON.parse(this.ignoreUnexpectedCharacters(nowDataJSON));
             const updateData = {};
-            updateData['events'] = updateEvents.concat(nowData.events);
+            updateData['events'] = updateEvents
             paramsToPut['Body'] = JSON.stringify(updateData);
             await this.s3.putObject(paramsToPut, async (err, data) => {
                 if (err) {
                     await this.errorLog("data: " + data.toString() + "error: " + err.toString());
                 } else {
                     const date = new Date();
-                    const updateAt = date.toLocaleDateString();
+                    const options = {
+                       year: "numeric",
+                       month: "numric",
+                       day: "numeric",
+                       hour: "numeric",
+                       minute: "numeric",
+                       second: "numeric"
+                    }
+                    const updateAt = date.toLocaleDateString("ja-JP", options);
                     const putData = {
                         sinceId: updateSinceId,
                         updateAt: updateAt,
                     }
                     paramsToPutSinceId['Body'] = JSON.stringify(putData);
                     await this.s3.putObject(paramsToPutSinceId).promise();
-                    console.log("Successfully uploaded data : " + date.toLocaleDateString());
                 }
             });
         }).catch(err => {
@@ -116,8 +121,8 @@ export class EventRepository extends IEventRepository{
 
     async errorLog(err: string) {
         const data = await this.s3.getObject(paramsToGetErrorLog).promise()
-        paramsToPutErrorLog['Body'] = data.Body.toString() + err + "\n"
-        await this.s3.putObject(paramsToPutErrorLog).promise();
+        console.log(data.Body.toString() + err)
+        return
     }
 
     ignoreUnexpectedCharacters(str: string): string {
