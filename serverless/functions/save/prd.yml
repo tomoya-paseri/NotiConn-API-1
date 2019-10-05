@@ -1,4 +1,4 @@
-handler: src/handler/event.getEvents
+handler: src/handler/event.save
 package:
   include:
     - src/**
