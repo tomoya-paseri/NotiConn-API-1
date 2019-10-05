@@ -2,7 +2,8 @@ export type Event = {
     title: string,
     url: string,
     owner: string,
-    place: Place
+    place: Place,
+    topic: string
 };
 
 export type Place = {

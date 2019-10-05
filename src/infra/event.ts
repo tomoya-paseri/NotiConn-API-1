@@ -36,6 +36,10 @@ export class EventRepository extends IEventRepository{
         const formattedData = this.ignoreUnexpectedCharacters(data.Body.toString())
         const events = JSON.parse(formattedData).events
         const filteredEvents = events.filter(event => event.description.match( req ) != null );
+        filteredEvents.forEach((e, i) => {
+            const topic = e.description.match(req)[0]
+            filteredEvents[i].topic = topic
+        });
         return JSON.stringify(filteredEvents)
     }
 
