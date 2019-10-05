@@ -12,36 +12,23 @@ import 'source-map-support/register';
 import { EventRepository } from '../infra/event';
 import { EventUsecase } from '../usecase/event';
 
-export const getAllEvents: APIGatewayProxyHandler = async (event, _context) => {
-  // const req = event.multiValueQueryStringParameters
-  const eventRepo = new EventRepository(s3)
-  const eventUsecase = new EventUsecase(eventRepo)
-  const events = await eventUsecase.getAllEvents()
-  return {
-    statusCode: 200,
-    body: JSON.stringify({message: events})
-  };
-}
-
-const paramsToGet = {
-  Bucket: 'noticonn',
-  Key: 'sample.json'
-};
-
 const paramsToPut = {
   Bucket: 'noticonn',
   Key: 'samplePut.json',
   Body: '',
 };
 
-
 export const getEvents: APIGatewayProxyHandler = async (event, _context) => {
-  // const req = event.multiValueQueryStringParameters
+  const req = event.multiValueQueryStringParameters
+  console.log(req)  // event変数使用するため一旦出力
   const eventRepo = new EventRepository(s3)
   const eventUsecase = new EventUsecase(eventRepo)
-  const events = await eventUsecase.getAllEvents()
+  const events = await eventUsecase.getEvents(req)
   return {
     statusCode: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*"
+    },
     body: JSON.stringify({message: events})
   };
 }
