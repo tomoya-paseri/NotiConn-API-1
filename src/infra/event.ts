@@ -25,17 +25,6 @@ const paramsToGetSinceId = {
     Key: 'sampleSinceId.json',
 };
 
-const paramsToPutErrorLog = {
-    Bucket: 'noticonn',
-    Key: 'sampleErrorLog.txt',
-    Body: '',
-};
-
-const paramsToGetErrorLog = {
-    Bucket: 'noticonn',
-    Key: 'sampleErrorLog.txt',
-};
-
 export class EventRepository extends IEventRepository{
     private s3: aws.S3;
     constructor(s3: aws.S3) {
@@ -120,8 +109,7 @@ export class EventRepository extends IEventRepository{
     }
 
     async errorLog(err: string) {
-        const data = await this.s3.getObject(paramsToGetErrorLog).promise()
-        console.log(data.Body.toString() + err)
+        console.error(err)
         return
     }
 
