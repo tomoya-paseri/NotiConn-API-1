@@ -24,4 +24,7 @@ make deploy
 
 make remove
 - remove lambda from aws
+
+make save-local
+- run save function local
 ```

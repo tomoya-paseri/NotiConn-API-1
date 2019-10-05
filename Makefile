@@ -13,3 +13,7 @@ deploy-prd:
 .PHONY: remove
 remove:
 	yarn sls remove --aws-profile noticonn
+
+.PHONY: save-local
+save-local:
+	yarn sls invoke local --function save
