@@ -38,6 +38,3 @@ functions:
         - src/**
     events:
       - schedule: cron(0/10 * * * ? *)
-      - http:
-          method: get
-          path: save
