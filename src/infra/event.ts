@@ -1,5 +1,5 @@
 import { IEventRepository } from "../domain/repository/event";
-import { get } from 'request-promise';
+import { get, post } from 'request-promise';
 import * as aws from 'aws-sdk';
 import { resolve, reject } from "bluebird";
 
@@ -80,6 +80,7 @@ export class EventRepository extends IEventRepository{
             }
             paramsToPutSinceId['Body'] = JSON.stringify(putData);
             await this.s3.putObject(paramsToPutSinceId).promise();
+            await this.postSlack(paramsToPut['Body']);
         }).catch(err => {
             console.error(err);
         });
@@ -102,6 +103,28 @@ export class EventRepository extends IEventRepository{
         return get(options)
             .then(body => {
                 return resolve(body["events"]);
+            })
+            .catch(async e => {
+                await this.errorLog(e.toString());
+                return reject(e);
+            })
+    }
+
+    async postSlack(message: string): Promise<any> {
+        const hookURL = process.env.HOOKS_URL;
+        const options = {
+            uri: hookURL,
+            method: "POST",
+            headers: {
+                "User-Agent": "Request-Promise"
+            },
+            json: {
+                "text": message
+            }
+        };
+        return post(options)
+            .then(body => {
+                return resolve(body);
             })
             .catch(async e => {
                 await this.errorLog(e.toString());
