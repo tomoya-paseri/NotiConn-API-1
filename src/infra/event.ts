@@ -63,30 +63,25 @@ export class EventRepository extends IEventRepository{
             const updateData = {};
             updateData['events'] = updateEvents;
             paramsToPut['Body'] = JSON.stringify(updateData);
-            await this.s3.putObject(paramsToPut, async (err, data) => {
-                if (err) {
-                    await this.errorLog("data: " + data.toString() + "error: " + err.toString());
-                } else {
-                    const date = new Date();
-                    const options = {
-                       year: "numeric",
-                       month: "numeric",
-                       day: "numeric",
-                       hour: "numeric",
-                       minute: "numeric",
-                       second: "numeric"
-                    }
-                    const updateAt = date.toLocaleDateString("ja-JP", options);
-                    const putData = {
-                        sinceId: updateSinceId,
-                        updateAt: updateAt,
-                    }
-                    paramsToPutSinceId['Body'] = JSON.stringify(putData);
-                    await this.s3.putObject(paramsToPutSinceId).promise();
-                }
-            });
+            await this.s3.putObject(paramsToPut).promise();
+            const date = new Date();
+            const options = {
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric"
+            }
+            const updateAt = date.toLocaleDateString("ja-JP", options);
+            const putData = {
+                sinceId: updateSinceId,
+                updateAt: updateAt,
+            }
+            paramsToPutSinceId['Body'] = JSON.stringify(putData);
+            await this.s3.putObject(paramsToPutSinceId).promise();
         }).catch(err => {
-            console.log(err);
+            console.error(err);
         });
     }
 
