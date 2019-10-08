@@ -80,7 +80,7 @@ export class EventRepository extends IEventRepository{
             }
             paramsToPutSinceId['Body'] = JSON.stringify(putData);
             await this.s3.putObject(paramsToPutSinceId).promise();
-            await this.postSlack(paramsToPut['Body']);
+            await this.postSlack(updateEvents);
         }).catch(err => {
             console.error(err);
         });
@@ -110,7 +110,37 @@ export class EventRepository extends IEventRepository{
             })
     }
 
-    async postSlack(message: string): Promise<any> {
+    deleteHtmlTagAndCutText = (text: string): string => {
+        const replaceText: string = text.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, "").replace(/\n/g, "");
+        return replaceText.slice(0, 100);
+    }
+
+    createSection = (title: string, event_id: number, event_url: string, description: string) => {
+        const arrangeDescripttion: string = this.deleteHtmlTagAndCutText(description);
+        return {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": `*${title} (id: ${event_id})*\nurl: ${event_url}\n\`\`\`${arrangeDescripttion}...\`\`\``
+            }
+        }
+    };
+
+    async postSlack(messages: any[]): Promise<any> {
+        if (messages.length < 1) {
+            return resolve("no operation");
+        }
+        const slackMessageContent = [];
+        messages.forEach(message => {
+            slackMessageContent.push(
+                this.createSection(
+                    message['title'],
+                    message['event_id'],
+                    message['event_url'],
+                    message['description']
+                )
+            );
+        });
         const hookURL = process.env.HOOKS_URL;
         const options = {
             uri: hookURL,
@@ -119,7 +149,7 @@ export class EventRepository extends IEventRepository{
                 "User-Agent": "Request-Promise"
             },
             json: {
-                "text": message
+                "blocks": slackMessageContent
             }
         };
         return post(options)
