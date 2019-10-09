@@ -1,5 +1,5 @@
 import { IEventRepository } from "../domain/repository/event";
-import { get } from 'request-promise';
+import { get, post } from 'request-promise';
 import * as aws from 'aws-sdk';
 import { resolve, reject } from "bluebird";
 
@@ -80,6 +80,7 @@ export class EventRepository extends IEventRepository{
             }
             paramsToPutSinceId['Body'] = JSON.stringify(putData);
             await this.s3.putObject(paramsToPutSinceId).promise();
+            await this.postSlack(updateEvents);
         }).catch(err => {
             console.error(err);
         });
@@ -102,6 +103,58 @@ export class EventRepository extends IEventRepository{
         return get(options)
             .then(body => {
                 return resolve(body["events"]);
+            })
+            .catch(async e => {
+                await this.errorLog(e.toString());
+                return reject(e);
+            })
+    }
+
+    deleteHtmlTagAndCutText = (text: string): string => {
+        const replaceText: string = text.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, "").replace(/\n/g, "");
+        return replaceText.slice(0, 100);
+    }
+
+    createSection = (title: string, event_id: number, event_url: string, description: string) => {
+        const arrangeDescripttion: string = this.deleteHtmlTagAndCutText(description);
+        return {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": `*${title} (id: ${event_id})*\nurl: ${event_url}\n\`\`\`${arrangeDescripttion}...\`\`\``
+            }
+        }
+    };
+
+    async postSlack(messages: any[]): Promise<any> {
+        if (messages.length < 1) {
+            return resolve("no operation");
+        }
+        const slackMessageContent = [];
+        messages.forEach(message => {
+            slackMessageContent.push(
+                this.createSection(
+                    message['title'],
+                    message['event_id'],
+                    message['event_url'],
+                    message['description']
+                )
+            );
+        });
+        const hookURL = process.env.HOOKS_URL;
+        const options = {
+            uri: hookURL,
+            method: "POST",
+            headers: {
+                "User-Agent": "Request-Promise"
+            },
+            json: {
+                "blocks": slackMessageContent
+            }
+        };
+        return post(options)
+            .then(body => {
+                return resolve(body);
             })
             .catch(async e => {
                 await this.errorLog(e.toString());
