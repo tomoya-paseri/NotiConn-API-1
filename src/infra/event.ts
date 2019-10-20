@@ -43,7 +43,7 @@ export class EventRepository extends IEventRepository{
             .filter(event => event.description.match( req.topics ) != null);
         let prefFilteredEvents = []
         for (let event of filteredEvents) {
-            let tf = true;
+            let tf = false;
             if (event.lon && event.lat) {
                 tf = await this.getPrefFromLongLat(event.lon, event.lat).then(prefName => {
                     var eventPrefId = Object.keys(prefecture).filter(k => prefecture[k] == prefName)[0]
