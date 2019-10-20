@@ -195,7 +195,6 @@ export class EventRepository extends IEventRepository{
 
     async postSlackErrorLog(errorMessage: string): Promise<any> {
         const hookURL = process.env.HOOKS_URL;
-        console.log(errorMessage);
         const options = {
             uri: hookURL,
             method: "POST",
