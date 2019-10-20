@@ -1,14 +1,7 @@
-
-defaults: &defaults
-  working_directory: /tmp
-  docker:
-    - image: circleci/node:4.8.2
-
-workflows:
-  version: 2
-  approval-deploy-with-serverless:
-    jobs:
-      <<: *defaults
+version: 2
+jobs:
+  setup:
+    steps:
       - checkout # ソースコードを作業ディレクトリにチェックアウトする特別なステップ
       - run:
           name: update-npm
@@ -26,6 +19,13 @@ workflows:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
+workflows:
+  working_directory: /tmp
+  docker:
+    - image: circleci/node:4.8.2
+  approval-deploy-with-serverless:
+    jobs:
+      - setup
       - request-deploy:
           type: approval  # approvalを設定したjob
       - deploy:
