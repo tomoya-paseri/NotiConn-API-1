@@ -81,11 +81,7 @@ workflows:
           filters:
             branches:
               only: master
-          requires:
-            - request-deploy
-      - deploy-prd:
+      - deploy-dev:
           filters:
             branches:
               only: develop
-          requires:
-            - request-deploy
