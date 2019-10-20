@@ -61,7 +61,7 @@ workflows:
     jobs:
       - setup
       - test:
-        requires:
+          requires:
             - setup
       - request-deploy:
           type: approval  # approvalを設定したjob
