@@ -1,6 +1,6 @@
 jobs:
-  deploy-with-serverless:
-    working_directory: /tmp
+  setup:
+    working_directory: ~/workspace
     docker:
       - image: circleci/node:4.8.2
     steps:
@@ -21,16 +21,46 @@ jobs:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
+      - persist_to_workspace:
+          root: . # workspaceのrootパス（絶対パスかworking_directoryからの相対パス）
+          paths:
+            - . # 共有するパス（絶対パスかrootからの相対パス）
+  deploy-prd:
+    working_directory: ~/workspace
+    docker:
+      - image: node:9.4.0
+    steps:
+      - attach_workspace: # workspaceをアタッチする
+          at: .
       - run:
-        name: deploy with serverless
-        command: make deploy-prd
+          name: deploy-prd
+          command: make deploy-prd
+  deploy-dev:
+    working_directory: ~/workspace
+    docker:
+      - image: node:9.4.0
+    steps:
+      - attach_workspace: # workspaceをアタッチする
+          at: .
+      - run:
+          name: deploy-prd
+          command: make deploy-dev
 workflows:
   version: 2
   approval-deploy-with-serverless:
     jobs:
       - request-deploy:
           type: approval  # approvalを設定したjob
-      - deploy-with-serverless:
+          filters:
+            branches:
+              only:
+                - master
+                - develop
+      - deploy-prd:
           filters:
             branches:
               only: master
+      - deploy-prd:
+          filters:
+            branches:
+              only: develop
