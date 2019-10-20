@@ -10,3 +10,8 @@ export type Place = {
     lon: number,
     lat: number
 }
+
+export type getEventsReq = {
+  topics: RegExp,
+  pref: number
+}

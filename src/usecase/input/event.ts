@@ -1,12 +1,14 @@
-export type getEventReqType = {
-  topics: string[]
-};
-
+import { getEventsReq } from '../../domain/event'
 // match検索出来るように正規表現形式にする
-export function parseToInput (req: any): RegExp {
-  let topics: string[] = req.topics
-  topics = topics.map(t => escapeRegExp(t))
-  return new RegExp(topics.join("|"), 'i')
+export function parseToInput (req: any): getEventsReq {
+  let topicstr: string[] = req.topics
+  let pref: number = req.pref
+  const topics: RegExp = new RegExp(topicstr.map(t => escapeRegExp(t)).join("|"), 'i')
+  const inputEvents: getEventsReq = {
+    topics: topics,
+    pref: pref
+  }
+  return inputEvents
 }
 
 const escapeRegExp = (word: string) => {

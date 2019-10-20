@@ -1,14 +1,9 @@
-
-defaults: &defaults
-  working_directory: /tmp
-  docker:
-    - image: circleci/node:4.8.2
-
-workflows:
-  version: 2
-  approval-deploy-with-serverless:
-    jobs:
-      <<: *defaults
+jobs:
+  setup:
+    working_directory: ~/workspace
+    docker:
+      - image: circleci/node:lts
+    steps:
       - checkout # ソースコードを作業ディレクトリにチェックアウトする特別なステップ
       - run:
           name: update-npm
@@ -26,7 +21,78 @@ workflows:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
+      - run:
+          name: create-config-slack
+          command: sh ./serverless/script/slack.sh
+      - run:
+          name: create-config-map
+          command: sh ./serverless/script/map.sh
+      - persist_to_workspace:
+          root: . # workspaceのrootパス（絶対パスかworking_directoryからの相対パス）
+          paths:
+            - . # 共有するパス（絶対パスかrootからの相対パス）
+  test:
+    working_directory: ~/workspace
+    docker:
+      - image: node:9.4.0
+    steps:
+      - attach_workspace: # workspaceをアタッチする
+          at: .
+      - run:
+          name: test
+          command: npm run test
+  deploy-prd:
+    working_directory: ~/workspace
+    docker:
+      - image: node:9.4.0
+    steps:
+      - attach_workspace: # workspaceをアタッチする
+          at: .
+      - run:
+          name: set-credentials
+          command: sh ./serverless/script/credentials.sh noticonn
+      - run:
+          name: deploy-prd
+          command: make deploy-prd
+  deploy-dev:
+    working_directory: ~/workspace
+    docker:
+      - image: node:9.4.0
+    steps:
+      - attach_workspace: # workspaceをアタッチする
+          at: .
+      - run:
+          name: set-credentials
+          command: sh ./serverless/script/credentials.sh noticonn-dev
+      - run:
+          name: deploy-dev
+          command: make deploy-dev
+workflows:
+  version: 2
+  approval-deploy-with-serverless:
+    jobs:
+      - setup
+      - test:
+          requires:
+            - setup
       - request-deploy:
           type: approval  # approvalを設定したjob
-      - deploy:
-          command: make deploy-prd
+          filters:
+            branches:
+              only:
+                - master
+                - develop
+          requires:
+            - test
+      - deploy-prd:
+          filters:
+            branches:
+              only: master
+          requires:
+            - request-deploy
+      - deploy-dev:
+          filters:
+            branches:
+              only: develop
+          requires:
+            - request-deploy
