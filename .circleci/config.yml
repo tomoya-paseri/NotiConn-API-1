@@ -29,4 +29,7 @@ workflows:
       - request-deploy:
           type: approval  # approvalを設定したjob
       - deploy:
+          filters:
+            branches:
+              only: master
           command: make deploy-prd
