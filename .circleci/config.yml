@@ -27,6 +27,7 @@ jobs:
         name: deploy with serverless
         command: make deploy-prd
 workflows:
+  version: 2
   approval-deploy-with-serverless:
     jobs:
       - setup
