@@ -38,15 +38,27 @@ export class EventRepository extends IEventRepository{
         const formattedData = this.ignoreUnexpectedCharacters(data.Body.toString())
         const events = JSON.parse(formattedData).events
         // もしprefがnullだったら東京が指定されるように
-        const prefId = req.pref ? req.pref : "13";
-        const filteredEvents = events
-            .filter(event => event.description.match( req.topics ) != null)
-            .filter(event => prefecture[prefId] == this.getPrefFromLongLat(event.lon, event.lat));
-        filteredEvents.forEach((e, i) => {
-            const topic = e.description.match(req)[0]
-            filteredEvents[i].topic = topic
+        const prefId = req.pref ? String(req.pref) : "13";
+        const filteredEvents = await events
+            .filter(event => event.description.match( req.topics ) != null);
+        let prefFilteredEvents = []
+        for (let event of filteredEvents) {
+            const tf = await this.getPrefFromLongLat(event.lon, event.lat).then(prefName => {
+                var eventPrefId = Object.keys(prefecture).filter(k => prefecture[k] == prefName)[0]
+                return prefId == eventPrefId
+            }).catch(err => {
+                console.error(err);
+                return false;
+            });
+            if (tf) {
+                prefFilteredEvents.push(event)
+            }
+        }
+        prefFilteredEvents.forEach((e, i) => {
+            const topic = e.description.match(req.topics)[0]
+            prefFilteredEvents[i].topic = topic
         });
-        return JSON.stringify(filteredEvents)
+        return JSON.stringify(prefFilteredEvents)
     }
 
     async save() {
@@ -139,15 +151,14 @@ export class EventRepository extends IEventRepository{
             uri: baseURL,
             method: "GET",
             qs: {
+                key: apiKey,
                 latlng: lat + "," + lon,
-                language: "ja",
-                key: apiKey
+                language: "ja"
             },
             json: true
         };
         return get(options)
             .then(body => {
-                console.log(body)
                 const prefName = parser_results(body)
                 return resolve(prefName)
             })
