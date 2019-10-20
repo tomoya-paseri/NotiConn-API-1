@@ -38,7 +38,9 @@ export class EventRepository extends IEventRepository{
         const formattedData = this.ignoreUnexpectedCharacters(data.Body.toString())
         const events = JSON.parse(formattedData).events
         // もしprefがnullだったら東京が指定されるように
-        const prefId = req.pref ? req.pref : "13";
+        const prefId = req.pref ? String(req.pref) : "13";
+        console.log(prefId)
+        console.log(prefecture[prefId])
         const filteredEvents = events
             .filter(event => event.description.match( req.topics ) != null)
             .filter(event => prefecture[prefId] == this.getPrefFromLongLat(event.lon, event.lat));
@@ -134,21 +136,24 @@ export class EventRepository extends IEventRepository{
 
     async getPrefFromLongLat(lon: number, lat: number): Promise<any>{
         const apiKey = process.env.MAP_API_KEY
+        console.log(apiKey)
         const baseURL = "https://maps.googleapis.com/maps/api/geocode/json"
         const options = {
             uri: baseURL,
             method: "GET",
             qs: {
+                key: apiKey,
                 latlng: lat + "," + lon,
-                language: "ja",
-                key: apiKey
+                language: "ja"
             },
             json: true
         };
         return get(options)
             .then(body => {
+                console.log("=============")
                 console.log(body)
                 const prefName = parser_results(body)
+                console.log(prefName)
                 return resolve(prefName)
             })
             .catch(async e => {
@@ -238,8 +243,14 @@ export class EventRepository extends IEventRepository{
 function parser_results(data): String {
     // 場所データ取得
     const prefData = data["results"] && data["results"][0] && data["results"][0]["address_components"] || [{}];
+    console.log("prefData")
+    console.log(prefData)
     // 県の名前が書かれている場所を取得
     const len = prefData.length - 3 >= 0 ? prefData.length - 3 : 0;
+    console.log("len")
+    console.log(len)
     const pref = prefData[len]["long_name"]
+    console.log("pref")
+    console.log(pref)
     return pref
 }
