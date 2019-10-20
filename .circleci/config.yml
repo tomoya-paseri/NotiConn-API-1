@@ -21,6 +21,11 @@ jobs:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
+      - run:
+          name: create-config
+          command: |
+            touch ./serverless/secret/slack.yml
+            echo 'HOOKS_URL: $HOOKS_URL' > ./serverless/secret/slack.yml
       - persist_to_workspace:
           root: . # workspaceのrootパス（絶対パスかworking_directoryからの相対パス）
           paths:
