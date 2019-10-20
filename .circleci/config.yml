@@ -2,7 +2,7 @@ jobs:
   setup:
     working_directory: ~/workspace
     docker:
-      - image: circleci/node:4.8.2
+      - image: circleci/node:lts
     steps:
       - checkout # ソースコードを作業ディレクトリにチェックアウトする特別なステップ
       - run:
