@@ -1,5 +1,5 @@
 import { IEventRepository } from "../domain/repository/event";
-import { Event } from "../domain/event";
+import { Event, getEventsReq } from "../domain/event";
 import { parseToOutput } from "./output/event";
 import { parseToInput } from "./input/event";
 
@@ -15,7 +15,7 @@ export class EventUsecase extends IEventUsecase {
         this.repo = repo
     }
     async getEvents(req: any): Promise<Event[]> {
-        const inputData: RegExp = parseToInput(req)
+        const inputData: getEventsReq = parseToInput(req)
         const events = await this.repo.get(inputData)
         return parseToOutput(events)
     }

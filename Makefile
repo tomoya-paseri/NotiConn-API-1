@@ -4,15 +4,15 @@ offline:
 
 .PHONY: deploy-dev
 deploy-dev:
-	yarn sls deploy --aws-profile noticonn
+	yarn sls deploy
 
 .PHONY: deploy-prd
 deploy-prd:
-	yarn sls deploy --aws-profile noticonn --stage=prd
+	yarn sls deploy --stage=prd
 
 .PHONY: remove
 remove:
-	yarn sls remove --aws-profile noticonn
+	yarn sls remove
 
 .PHONY: save-local
 save-local:
