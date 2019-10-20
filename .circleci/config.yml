@@ -23,9 +23,7 @@ jobs:
             - ./node_modules
       - run:
           name: create-config
-          command: |
-            touch ./serverless/secret/slack.yml
-            echo 'HOOKS_URL: $HOOKS_URL' > ./serverless/secret/slack.yml
+          command: sh ./serverless/script/slack.sh
       - persist_to_workspace:
           root: . # workspaceのrootパス（絶対パスかworking_directoryからの相対パス）
           paths:
