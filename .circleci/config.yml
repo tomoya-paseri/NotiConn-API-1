@@ -22,8 +22,11 @@ jobs:
           paths:
             - ./node_modules
       - run:
-          name: create-config
+          name: create-config-slack
           command: sh ./serverless/script/slack.sh
+      - run:
+          name: create-config-map
+          command: sh ./serverless/script/map.sh
       - persist_to_workspace:
           root: . # workspaceのrootパス（絶対パスかworking_directoryからの相対パス）
           paths:
