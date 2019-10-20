@@ -64,7 +64,7 @@ jobs:
           name: set-credentials
           command: sh ./serverless/script/credentials.sh noticonn-dev
       - run:
-          name: deploy-prd
+          name: deploy-dev
           command: make deploy-dev
 workflows:
   version: 2
