@@ -193,7 +193,30 @@ export class EventRepository extends IEventRepository{
             })
     }
 
+    async postSlackErrorLog(errorMessage: string): Promise<any> {
+        const hookURL = process.env.HOOKS_URL;
+        const options = {
+            uri: hookURL,
+            method: "POST",
+            headers: {
+                "User-Agent": "Request-Promise"
+            },
+            json: {
+                "text": `<!here>[ERROR]${errorMessage.slice(0, 300)}`
+            }
+        };
+        return post(options)
+            .then(body => {
+                return resolve(body);
+            })
+            .catch(async e => {
+                console.error(e);
+                return reject(e);
+            })
+    }
+
     async errorLog(err: string) {
+        await this.postSlackErrorLog(err);
         console.error(err)
         return
     }
