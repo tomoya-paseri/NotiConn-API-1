@@ -43,13 +43,16 @@ export class EventRepository extends IEventRepository{
             .filter(event => event.description.match( req.topics ) != null);
         let prefFilteredEvents = []
         for (let event of filteredEvents) {
-            const tf = await this.getPrefFromLongLat(event.lon, event.lat).then(prefName => {
-                var eventPrefId = Object.keys(prefecture).filter(k => prefecture[k] == prefName)[0]
-                return prefId == eventPrefId
-            }).catch(err => {
-                console.error(err);
-                return false;
-            });
+            let tf = true;
+            if (event.lon && event.lat) {
+                tf = await this.getPrefFromLongLat(event.lon, event.lat).then(prefName => {
+                    var eventPrefId = Object.keys(prefecture).filter(k => prefecture[k] == prefName)[0]
+                    return prefId == eventPrefId
+                }).catch(err => {
+                    console.error(err);
+                    return false;
+                });
+            }
             if (tf) {
                 prefFilteredEvents.push(event)
             }
