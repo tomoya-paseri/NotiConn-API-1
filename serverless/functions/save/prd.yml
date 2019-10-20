@@ -3,4 +3,4 @@ package:
   include:
     - src/**
 events:
-  - schedule: cron(10 */1 * * ? *)
+  - schedule: cron(10 0/1 * * ? *)
