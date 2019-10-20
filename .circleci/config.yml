@@ -48,6 +48,9 @@ jobs:
       - attach_workspace: # workspaceをアタッチする
           at: .
       - run:
+          name: set-credentials
+          command: sh ./serverless/script/credentials.sh noticonn
+      - run:
           name: deploy-prd
           command: make deploy-prd
   deploy-dev:
@@ -57,6 +60,9 @@ jobs:
     steps:
       - attach_workspace: # workspaceをアタッチする
           at: .
+      - run:
+          name: set-credentials
+          command: sh ./serverless/script/credentials.sh noticonn-dev
       - run:
           name: deploy-prd
           command: make deploy-dev
