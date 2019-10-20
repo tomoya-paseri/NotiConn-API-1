@@ -1,6 +1,5 @@
-version: 2
 jobs:
-  build:
+  setup:
     working_directory: /tmp
     docker:
       - image: circleci/node:4.8.2
@@ -22,9 +21,18 @@ jobs:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
+  deploy-lambda:
+    steps:
+      - run:
+        name: deploy with serverless
+        command: make deploy-prd
+workflows:
+  approval-deploy-with-serverless:
+    jobs:
+      - setup
       - request-deploy:
           type: approval  # approvalを設定したjob
-      - deploy:
+      - deploy-lambda:
           filters:
             branches:
               only: master
