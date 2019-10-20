@@ -1,4 +1,3 @@
-version: 2
 jobs:
   setup:
     steps:
@@ -20,6 +19,7 @@ jobs:
           paths:
             - ./node_modules
 workflows:
+  version: 2
   working_directory: /tmp
   docker:
     - image: circleci/node:4.8.2
