@@ -60,7 +60,9 @@ workflows:
   approval-deploy-with-serverless:
     jobs:
       - setup
-      - test
+      - test:
+        requires:
+            - setup
       - request-deploy:
           type: approval  # approvalを設定したjob
           filters:
@@ -68,11 +70,17 @@ workflows:
               only:
                 - master
                 - develop
+          requires:
+            - test
       - deploy-prd:
           filters:
             branches:
               only: master
+          requires:
+            - request-deploy
       - deploy-prd:
           filters:
             branches:
               only: develop
+          requires:
+            - request-deploy
