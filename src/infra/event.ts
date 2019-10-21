@@ -27,6 +27,12 @@ const paramsToGetSinceId = {
     Key: process.env.SINCE_ID_FILE,
 };
 
+const logType = {
+    ERROR: "<!here> [ERROR] ",
+    WARN: "[WARN] ",
+    INFO: "[INFO] "
+};
+
 export class EventRepository extends IEventRepository{
     private s3: aws.S3;
     constructor(s3: aws.S3) {
@@ -52,6 +58,9 @@ export class EventRepository extends IEventRepository{
                     console.error(err);
                     return false;
                 });
+            } else {
+                const text= `\"${event.title}\"は緯度経度が設定されていないイベントです`
+                await this.postSlackLog(text, logType.WARN);
             }
             if (tf) {
                 prefFilteredEvents.push(event)
@@ -126,7 +135,7 @@ export class EventRepository extends IEventRepository{
                 return resolve(body["events"]);
             })
             .catch(async e => {
-                await this.errorLog(e.toString());
+                await this.postSlackLog(e.toString(), logType.ERROR);
                 return reject(e);
             })
     }
@@ -166,7 +175,7 @@ export class EventRepository extends IEventRepository{
                 return resolve(prefName)
             })
             .catch(async e => {
-                await this.errorLog(e.toString());
+                await this.postSlackLog(e.toString(), logType.ERROR);
                 return reject(e);
             })
     };
@@ -202,12 +211,13 @@ export class EventRepository extends IEventRepository{
                 return resolve(body);
             })
             .catch(async e => {
-                await this.errorLog(e.toString());
+                console.error(e.toString());
+                await this.postSlackLog(e.toString(), logType.ERROR);
                 return reject(e);
             })
     }
 
-    async postSlackErrorLog(errorMessage: string): Promise<any> {
+    async postSlackLog(errorMessage: string, type: string): Promise<any> {
         const hookURL = process.env.HOOKS_URL;
         const options = {
             uri: hookURL,
@@ -216,7 +226,7 @@ export class EventRepository extends IEventRepository{
                 "User-Agent": "Request-Promise"
             },
             json: {
-                "text": `<!here>[ERROR]${errorMessage.slice(0, 300)}`
+                "text": type + errorMessage.slice(0, 300)
             }
         };
         return post(options)
@@ -227,12 +237,6 @@ export class EventRepository extends IEventRepository{
                 console.error(e);
                 return reject(e);
             })
-    }
-
-    async errorLog(err: string) {
-        await this.postSlackErrorLog(err);
-        console.error(err)
-        return
     }
 
     ignoreUnexpectedCharacters(str: string): string {
