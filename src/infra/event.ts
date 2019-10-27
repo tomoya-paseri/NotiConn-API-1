@@ -44,33 +44,14 @@ export class EventRepository extends IEventRepository{
         const formattedData = this.ignoreUnexpectedCharacters(data.Body.toString())
         const events = JSON.parse(formattedData).events
         // もしprefがnullだったら東京が指定されるように
-        const prefId = req.pref ? String(req.pref) : "13";
+        const reqPrefId = req.pref ? String(req.pref) : "13";
         const filteredEvents = await events
-            .filter(event => event.description.match( req.topics ) != null);
-        let prefFilteredEvents = []
-        for (let event of filteredEvents) {
-            let tf = false;
-            if (event.lon && event.lat) {
-                tf = await this.getPrefFromLongLat(event.lon, event.lat).then(prefName => {
-                    var eventPrefId = Object.keys(prefecture).filter(k => prefecture[k] == prefName)[0]
-                    return prefId == eventPrefId
-                }).catch(err => {
-                    console.error(err);
-                    return false;
-                });
-            } else {
-                const text= `\"${event.title}\"は緯度経度が設定されていないイベントです`
-                await this.postSlackLog(text, logType.WARN);
-            }
-            if (tf) {
-                prefFilteredEvents.push(event)
-            }
-        }
-        prefFilteredEvents.forEach((e, i) => {
+            .filter(event => event.description.match( req.topics ) != null && event.pref == reqPrefId);
+        filteredEvents.forEach((e, i) => {
             const topic = e.description.match(req.topics)[0]
-            prefFilteredEvents[i].topic = topic
+            filteredEvents[i].topic = topic
         });
-        return JSON.stringify(prefFilteredEvents)
+        return JSON.stringify(filteredEvents)
     }
 
     async save() {
@@ -86,6 +67,16 @@ export class EventRepository extends IEventRepository{
                     events[i]['description'] = description
                         .replace(/(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)/g, "")
                         .replace(/^ [a - zA - Z0 - 9.!#$ %& '*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/g, '');
+                    const lon = events[i]["lon"]
+                    const lat = events[i]["lat"]
+                    if (!(lon && lat)) {
+                        const text= `\"${events[i]["title"]}\"は緯度経度が設定されていないイベントです`
+                        await this.postSlackLog(text, logType.WARN);
+                        continue;
+                    }
+                    const prefName = await this.getPrefFromLongLat(lon, lat);
+                    const prefId = getIdFromPrefName(prefName)
+                    events[i]["pref"] = prefId
                     updateEvents.push(events[i]);
                     if (events[i]['event_id'] > updateSinceId) updateSinceId = events[i]['event_id'];
                 }
@@ -104,6 +95,7 @@ export class EventRepository extends IEventRepository{
                 second: "numeric"
             }
             const updateAt = date.toLocaleDateString("ja-JP", options);
+            if (process.env.ENV == "dev") updateSinceId = 0;
             const putData = {
                 sinceId: updateSinceId,
                 updateAt: updateAt,
@@ -260,4 +252,8 @@ function parser_results(data): String {
     const len = prefData.length - 3 >= 0 ? prefData.length - 3 : 0;
     const pref = prefData[len]["long_name"]
     return pref
+}
+
+function getIdFromPrefName(name: String): number {
+    return Number(Object.keys(prefecture).filter(k => prefecture[k] == name)[0]) || 13
 }

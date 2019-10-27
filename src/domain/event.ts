@@ -3,7 +3,8 @@ export type Event = {
     url: string,
     owner: string,
     place: Place,
-    topic: string
+    topic: string,
+    pref: number
 };
 
 export type Place = {
