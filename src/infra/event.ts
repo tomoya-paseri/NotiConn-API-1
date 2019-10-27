@@ -95,6 +95,7 @@ export class EventRepository extends IEventRepository{
                 second: "numeric"
             }
             const updateAt = date.toLocaleDateString("ja-JP", options);
+            if (process.env.ENV == "dev") updateSinceId = 0;
             const putData = {
                 sinceId: updateSinceId,
                 updateAt: updateAt,
