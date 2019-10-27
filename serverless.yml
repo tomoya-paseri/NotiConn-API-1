@@ -35,6 +35,7 @@ provider:
     BUCKET: ${self:custom.env.${self:provider.stage}.BUCKET}
     EVENT_FILE: ${self:custom.env.${self:provider.stage}.EVENT_FILE}
     SINCE_ID_FILE: ${self:custom.env.${self:provider.stage}.SINCE_ID_FILE}
+    ENV: ${self:custom.env.${self:provider.stage}.ENV}
     HOOKS_URL: ${self:custom.secret.slack.HOOKS_URL}
     MAP_API_KEY: ${self:custom.secret.map.MAP_API_KEY}
   iamRoleStatements:
