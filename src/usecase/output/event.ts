@@ -26,7 +26,7 @@ export function parseToOutput(req: string): Event[] {
             lat: Number(event.lat)
         },
         topic: event.topic,
-        pref: event.pref,
+        pref: event.pref
     }
     resOutput.push(resEvent)
   });
