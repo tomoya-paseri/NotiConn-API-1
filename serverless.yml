@@ -57,5 +57,4 @@ functions:
           path: events
     timeout: 60
   save:
-    timeout: 60
     ${self:custom.functions.save.${self:provider.stage}}
