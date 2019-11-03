@@ -173,6 +173,7 @@ export class EventRepository extends IEventRepository{
     };
 
     async postSlack(messages: any[]): Promise<any> {
+        if (process.env.ENV == "dev") return;
         if (messages.length < 1) {
             return resolve("no operation");
         }
