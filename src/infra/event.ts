@@ -72,18 +72,24 @@ export class EventRepository extends IEventRepository{
                         .replace(/^ [a - zA - Z0 - 9.!#$ %& '*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/g, '');
                     const lon = events[i]["lon"]
                     const lat = events[i]["lat"]
+
+                    if (events[i]['event_id'] > updateSinceId) updateSinceId = events[i]['event_id']
+
                     if (description.match(/リモート/)) {
+                        // リモート開催の場合
                         events[i]["pref"] = 0
                     } else if (!(lon && lat)) {
+                        // リモート開催ではなく、かつ地域未設定のとき
                         const text= `\"${events[i]["title"]}\"は緯度経度が設定されていないイベントです`
                         await this.postSlackLog(text, logType.WARN);
+                        continue;
                     } else {
+                        // それ以外は正常
                         const prefName = await this.getPrefFromLongLat(lon, lat);
                         const prefId = getIdFromPrefName(prefName)
                         events[i]["pref"] = prefId
                     }
                     updateEvents.push(events[i]);
-                    if (events[i]['event_id'] > updateSinceId) updateSinceId = events[i]['event_id']
                 }
             }
             const updateData = {};
