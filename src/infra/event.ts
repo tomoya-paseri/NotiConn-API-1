@@ -80,8 +80,8 @@ export class EventRepository extends IEventRepository{
                         events[i]["pref"] = 0
                     } else if (!(lon && lat)) {
                         // リモート開催ではなく、かつ地域未設定のとき
-                        const text= `\"${events[i]["title"]}\"は緯度経度が設定されていないイベントです`
-                        await this.postSlackLog(text, logType.WARN);
+                        // const text= `\"${events[i]["title"]}\"は緯度経度が設定されていないイベントです`
+                        // await this.postSlackLog(text, logType.WARN);
                         continue;
                     } else {
                         // それ以外は正常
