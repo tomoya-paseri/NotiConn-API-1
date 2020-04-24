@@ -43,7 +43,7 @@ export class EventRepository extends IEventRepository{
         const data = await this.s3.getObject(paramsToGet).promise()
         const formattedData = this.ignoreUnexpectedCharacters(data.Body.toString())
         const events = JSON.parse(formattedData).events
-        // もしprefがnullだったら東京が指定されるように
+        // もしprefがnullだったらリモートが指定されるように
         const reqPrefId = req.pref ? String(req.pref) : "0";
         const filteredEvents = await events
             .filter(event => event.description.match( req.topics ) != null && event.pref == reqPrefId);
