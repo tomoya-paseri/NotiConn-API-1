@@ -43,10 +43,13 @@ export class EventRepository extends IEventRepository{
         const data = await this.s3.getObject(paramsToGet).promise()
         const formattedData = this.ignoreUnexpectedCharacters(data.Body.toString())
         const events = JSON.parse(formattedData).events
-        // もしprefがnullだったら東京が指定されるように
-        const reqPrefId = req.pref ? String(req.pref) : "13";
+        // もしprefがnullだったらリモートが指定されるように
+        const reqPrefId = req.pref ? String(req.pref) : "0";
         const filteredEvents = await events
-            .filter(event => event.description.match( req.topics ) != null && event.pref == reqPrefId);
+            .filter(event => event.description.match( req.topics ) != null);
+        if (reqPrefId !== "0") {
+            filteredEvents.filter(event => event.pref == reqPrefId);
+        }
         filteredEvents.forEach((e, i) => {
             const topic = e.description.match(req.topics)[0]
             filteredEvents[i].topic = topic
@@ -69,16 +72,24 @@ export class EventRepository extends IEventRepository{
                         .replace(/^ [a - zA - Z0 - 9.!#$ %& '*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/g, '');
                     const lon = events[i]["lon"]
                     const lat = events[i]["lat"]
-                    if (!(lon && lat)) {
+
+                    if (events[i]['event_id'] > updateSinceId) updateSinceId = events[i]['event_id']
+
+                    if (description.match(/リモート/)) {
+                        // リモート開催の場合
+                        events[i]["pref"] = 0
+                    } else if (!(lon && lat)) {
+                        // リモート開催ではなく、かつ地域未設定のとき
                         const text= `\"${events[i]["title"]}\"は緯度経度が設定されていないイベントです`
                         await this.postSlackLog(text, logType.WARN);
                         continue;
+                    } else {
+                        // それ以外は正常
+                        const prefName = await this.getPrefFromLongLat(lon, lat);
+                        const prefId = getIdFromPrefName(prefName)
+                        events[i]["pref"] = prefId
                     }
-                    const prefName = await this.getPrefFromLongLat(lon, lat);
-                    const prefId = getIdFromPrefName(prefName)
-                    events[i]["pref"] = prefId
                     updateEvents.push(events[i]);
-                    if (events[i]['event_id'] > updateSinceId) updateSinceId = events[i]['event_id'];
                 }
             }
             const updateData = {};
