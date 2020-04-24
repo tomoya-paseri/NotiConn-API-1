@@ -20,7 +20,8 @@ export const getEvents: APIGatewayProxyHandler = async (event, _context) => {
   return {
     statusCode: 200,
     headers: {
-      "Access-Control-Allow-Origin": "*"
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Authorization"
     },
     body: JSON.stringify({message: events})
   };
