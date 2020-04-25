@@ -3,7 +3,6 @@ import { getEventsReq } from '../../domain/event'
 export function parseToInput (req: any): getEventsReq {
   let topicstr: string[] = req.topics
   let pref: number = req.pref
-  if (pref === 0) topicstr.push('リモート');
   const topics: RegExp = new RegExp(topicstr.map(t => escapeRegExp(t)).join("|"), 'i')
   const inputEvents: getEventsReq = {
     topics: topics,
