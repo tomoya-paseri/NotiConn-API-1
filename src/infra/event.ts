@@ -46,10 +46,7 @@ export class EventRepository extends IEventRepository{
         // もしprefがnullだったらリモートが指定されるように
         const reqPrefId = req.pref ? String(req.pref) : "0";
         const filteredEvents = await events
-            .filter(event => event.description.match( req.topics ) != null);
-        if (reqPrefId !== "0") {
-            filteredEvents.filter(event => event.pref == reqPrefId);
-        }
+            .filter(event => event.description.match( req.topics ) != null && event.pref === reqPrefId);
         filteredEvents.forEach((e, i) => {
             const topic = e.description.match(req.topics)[0]
             filteredEvents[i].topic = topic
@@ -76,10 +73,10 @@ export class EventRepository extends IEventRepository{
                     if (events[i]['event_id'] > updateSinceId) updateSinceId = events[i]['event_id']
 
                     if (description.match(/リモート/)) {
-                        // リモート開催の場合
+                        // リモート開催の場合はpref=0でs3に入れる
                         events[i]["pref"] = 0
                     } else if (!(lon && lat)) {
-                        // リモート開催ではなく、かつ地域未設定のとき
+                        // リモート開催ではなく、かつ地域未設定の場合はs3にイベントを入れない
                         // const text= `\"${events[i]["title"]}\"は緯度経度が設定されていないイベントです`
                         // await this.postSlackLog(text, logType.WARN);
                         continue;
