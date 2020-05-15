@@ -46,7 +46,7 @@ export class EventRepository extends IEventRepository{
         // もしprefがnullだったらリモートが指定されるように
         const reqPrefId = req.pref ? String(req.pref) : "0";
         const filteredEvents = await events
-            .filter(event => event.description.match( req.topics ) != null && event.pref === reqPrefId);
+            .filter(event => event.description.match( req.topics ) != null && event.pref == reqPrefId);
         filteredEvents.forEach((e, i) => {
             const topic = e.description.match(req.topics)[0]
             filteredEvents[i].topic = topic
