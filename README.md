@@ -1,6 +1,10 @@
 # NotiConn-API
 NotiConnのAPI
 
+サービスはこちら
+
+https://chrome.google.com/webstore/detail/noticonn/flejkhlpnnjgnbjpccphbkomfbkhdnbn?hl=ja
+
 # How to start
 ```
 git clone https://github.com/KatsuyaAkasaka/NotiConn-API
